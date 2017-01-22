@@ -8,13 +8,12 @@ elif [ "${environmentAccount}" = "Prod" ];
 then
    export GLUSTER_SHARE='gluster.prod.ogsp.bfsonlinebanking.syd.c1.macquarie.com';
 fi
-export GUID_ENV="$( echo ${GUID} | cut -d '-' -f 1 )";
-
+export GUID="$(/usr/local/bin/pipeline_dns -c ansible | cut -d '.' -f 2)";
 oc create -f - <<API
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: prometheus
+  name: prometheus-${GUID}
 spec:
   capacity:
     storage: 10Gi
@@ -45,4 +44,3 @@ API
 oc volume dc/prometheus \
           --add --overwrite --name=data-volume \
           --type=persistentVolumeClaim --claim-name=prometheus-claim 2>&1 | tee -a $LOGFILE
-
